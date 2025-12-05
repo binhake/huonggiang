@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EventBuddy – Prototype</title>
+    <style>
+        :root {
+            --bg: #fff7fb;
+            --pink: #ffbdd4;
+            --accent: #ff8fb3;
+            --muted: #9b6474;
+            --card: #fff1f6;
+            --shadow: 0 6px 18px rgba(255, 120, 150, 0.12);
+            --radius: 18px;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #2b2b2b;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 22px 18px 84px;
+        }
+        
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 18px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 14px;
+        }
+        
+        .header {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #ffd6e6, #ffcce0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #6b2140
+        }
+        
+        h1.main {
+            font-size: 20px;
+            margin: 0 0 6px 0;
+            color: #5b2740
+        }
+        
+        p.sub {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px
+        }
+        /* Bottom nav */
+        
+        .bottomnav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 14px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none
+        }
+        
+        .navwrap {
+            width: 100%;
+            max-width: 420px;
+            background: transparent;
+            padding: 6px 12px;
+            pointer-events: auto
+        }
+        
+        .nav {
+            display: flex;
+            gap: 10px;
+            background: linear-gradient(90deg, #fff, #fff);
+            border-radius: 28px;
+            padding: 8px 12px;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06)
+        }
+        
+        .nav button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            border-radius: 18px;
+            font-size: 13px
+        }
+        
+        .nav button.active {
+            background: linear-gradient(180deg, var(--pink), var(--accent));
+            color: white;
+            box-shadow: 0 6px 12px rgba(255, 120, 150, 0.12)
+        }
+        /* screens */
+        
+        .illustr {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+        
+        .dog {
+            width: 120px;
+            height: 100px
+        }
+        
+        .features {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 6px
+        }
+        
+        .feat {
+            flex: 0 0 46%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03)
+        }
+        
+        .cta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer
+        }
+        /* feed */
+        
+        .event {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03)
+        }
+        
+        .event h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #4a1d33
+        }
+        
+        .event p {
+            margin: 6px 0 0 0;
+            font-size: 13px;
+            color: var(--muted)
+        }
+        
+        .chip {
+            background: linear-gradient(180deg, #fff8fb, #fff0f6);
+            padding: 6px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #8b4a5b
+        }
+        /* calendar suggestion */
+        
+        .calendar {
+            display: flex;
+            gap: 12px
+        }
+        
+        .suggest {
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+            width: 100%
+        }
+        
+        .small {
+            font-size: 12px;
+            color: var(--muted)
+        }
+        /* route */
+        
+        .map {
+            height: 220px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #ffeef4, #fff);
+        }
+        
+        .routecard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-top: 10px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03)
+        }
+        /* utilities */
+        
+        .hidden {
+            display: none
+        }
+        
+        footer {
+            height: 80px
+        }
+        
+        @media(min-width:520px) {
+            .screen {
+                padding-top: 40px
+            }
+            .card {
+                margin-bottom: 18px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Screen 1: Chào mừng -->
+    <main id="screen-home" class="screen">
+        <div class="header">
+            <div>
+                <div class="avatar">B</div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:12px;color:var(--muted)">Xin chào,</div>
+                <div style="font-weight:700;color:#5b2740">Bông ơi 😊</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                    <h1 class="main">Chào mừng đến với EventBuddy</h1>
+                    <p class="sub">Người bạn đồng hành giúp bạn không bỏ lỡ sự kiện nào.</p>
+                </div>
+                <!-- simple svg dog illustration -->
+                <svg class="dog" viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+                    <rect rx="18" width="160" height="120" fill="transparent" />
+                    <g transform="translate(6,6)">
+                        <ellipse cx="70" cy="86" rx="54" ry="22" fill="#ffdede" />
+                        <path d="M18 54 q12 -36 48 -36 q32 0 46 32 q-6 8 -20 8 q-14 0 -22 -6 q-8 6 -30 6 q-20 0 -22 -4z" fill="#ffb3c2" />
+                        <circle cx="40" cy="42" r="4" fill="#4a1d33" />
+                        <circle cx="74" cy="38" r="4" fill="#4a1d33" />
+                        <path d="M44 56 q18 10 38 0" stroke="#4a1d33" stroke-width="2" fill="none" stroke-linecap="round" />
+                    </g>
+                </svg>
+            </div>
+
+            <div class="features" style="margin-top:14px">
+                <div class="feat">
+                    <div style="width:36px;height:36;border-radius:8px;background:var(--pink);display:flex;align-items:center;justify-content:center;">📍</div>
+                    <div><strong>Bảng tin</strong>
+                        <div class="small">Sự kiện mới</div>
+                    </div>
+                </div>
+                <div class="feat">
+                    <div style="width:36px;height:36;border-radius:8px;background:var(--pink);display:flex;align-items:center;justify-content:center;">🔔</div>
+                    <div><strong>Nhắc lịch</strong>
+                        <div class="small">Không lo quên</div>
+                    </div>
+                </div>
+                <div class="feat">
+                    <div style="width:36px;height:36;border-radius:8px;background:var(--pink);display:flex;align-items:center;justify-content:center;">🧭</div>
+                    <div><strong>Ghép xe</strong>
+                        <div class="small">An toàn, tiết kiệm</div>
+                    </div>
+                </div>
+                <div class="feat">
+                    <div style="width:36px;height:36;border-radius:8px;background:var(--pink);display:flex;align-items:center;justify-content:center;">🤖</div>
+                    <div><strong>Gợi ý AI</strong>
+                        <div class="small">Event hợp lịch</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cta">
+                <div class="small">Bạn có thể khám phá ngay các tính năng phía dưới</div>
+                <button class="btn" onclick="show('feed')">Bắt đầu</button>
+            </div>
+        </div>
+
+        <div style="height:40px"></div>
+    </main>
+
+    <!-- Screen 2: Bảng tin / Event Feed -->
+    <main id="screen-feed" class="screen hidden">
+        <div class="header">
+            <div>
+                <h1 class="main">Bảng tin</h1>
+                <p class="sub">Các sự kiện đang mở và phù hợp với bạn</p>
+            </div>
+            <div class="avatar">EB</div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <input placeholder="Tìm kiếm sự kiện, địa điểm..." style="flex:1;padding:10px;border-radius:12px;border:1px solid #ffdfe8;background:white;margin-right:8px" />
+                <button class="btn" style="padding:9px 10px">Tìm</button>
+            </div>
+
+            <div class="event">
+                <div>
+                    <h3>Ngày hội tình nguyện ĐHQGHN</h3>
+                    <p class="small">Thứ 7, 09:00 - 16:00 · Cơ sở Mỹ Đình</p>
+                    <div style="margin-top:8px"><span class="chip">Miễn phí</span>
+                    </div>
+                </div>
+                <div style="text-align:right">
+                    <button class="btn" onclick="alert('Đăng ký thành công (demo)')">Đăng ký</button>
+                </div>
+            </div>
+
+            <div class="event">
+                <div>
+                    <h3>Workshop Kỹ năng tổ chức sự kiện</h3>
+                    <p class="small">Thứ 4, 18:00 - 20:00 · Cơ sở Hòa Lạc</p>
+                    <div style="margin-top:8px"><span class="chip">Chứng nhận</span>
+                    </div>
+                </div>
+                <div style="text-align:right">
+                    <button class="btn">Đăng ký</button>
+                </div>
+            </div>
+
+            <div style="margin-top:10px">
+                <div class="small" style="margin-bottom:8px">Bộ lọc nhanh</div>
+                <div style="display:flex;gap:8px">
+                    <div style="padding:8px;border-radius:12px;background:white">Theo ngành</div>
+                    <div style="padding:8px;border-radius:12px;background:white">Gần tôi</div>
+                    <div style="padding:8px;border-radius:12px;background:white">Miễn phí</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Screen 3: Gợi ý AI -->
+    <main id="screen-ai" class="screen hidden">
+        <div class="header">
+            <div>
+                <h1 class="main">Gợi ý cho bạn</h1>
+                <p class="sub">AI đã phân tích lịch của bạn và chọn ra những event phù hợp</p>
+            </div>
+            <div class="avatar">🤖</div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <div class="small">Bạn rảnh: 18:00 - 21:00 (Hôm nay)</div>
+                    <h3 style="margin:6px 0">Talkshow Future of Event Tech</h3>
+                    <div class="small">Cách 1.2 km · Thứ 4, 19:00</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="margin-bottom:10px">
+                        <button class="btn" onclick="alert('Thêm vào lịch (demo)')">Tham gia</button>
+                    </div>
+                    <div style="font-size:12px;color:var(--muted)">Ưu tiên: 92%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="small">Tại sao gợi ý này?</div>
+            <p class="small" style="margin-top:6px">AI so khớp lịch, địa điểm gần ký túc, chủ đề bạn yêu thích (Tech & Event) và lịch sử tham gia trước đó.</p>
+        </div>
+    </main>
+
+    <!-- Screen 4: Lập lộ trình & Ghép xe -->
+    <main id="screen-route" class="screen hidden">
+        <div class="header">
+            <div>
+                <h1 class="main">Lập lộ trình</h1>
+                <p class="sub">Gợi ý tuyến và nhóm ghép xe từ Hòa Lạc</p>
+            </div>
+            <div class="avatar">🚗</div>
+        </div>
+
+        <div class="card">
+            <div class="map"></div>
+            <div class="routecard">
+                <div>
+                    <div style="font-weight:700">Tuyến đề xuất</div>
+                    <div class="small">KTX Hòa Lạc → Mỹ Đình (Bus + ghép xe)</div>
+                </div>
+                <div style="text-align:right">
+                    <div class="small">ETA: 45 phút</div>
+                    <button class="btn" onclick="alert('Yêu cầu ghép xe gửi đi (demo)')">Ghép xe</button>
+                </div>
+            </div>
+
+            <div style="margin-top:12px" class="card">
+                <div style="font-weight:700;margin-bottom:6px">Những người cùng đi</div>
+                <div style="display:flex;gap:8px">
+                    <div style="background:#fff;padding:8px;border-radius:12px">Lan (K16) · 2 ghế</div>
+                    <div style="background:#fff;padding:8px;border-radius:12px">Minh (K17) · 1 ghế</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- bottom nav -->
+    <div class="bottomnav">
+        <div class="navwrap">
+            <div class="nav" role="navigation" aria-label="Main">
+                <button id="btn-home" class="active" onclick="show('home')">Trang chủ</button>
+                <button id="btn-feed" onclick="show('feed')">Bảng tin</button>
+                <button id="btn-ai" onclick="show('ai')">Gợi ý AI</button>
+                <button id="btn-route" onclick="show('route')">Lộ trình</button>
+            </div>
+        </div>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        function hideAll() {
+            document.getElementById('screen-home').classList.add('hidden');
+            document.getElementById('screen-feed').classList.add('hidden');
+            document.getElementById('screen-ai').classList.add('hidden');
+            document.getElementById('screen-route').classList.add('hidden');
+            document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        }
+
+        function show(screen) {
+            hideAll();
+            document.getElementById('screen-' + screen).classList.remove('hidden');
+            document.getElementById('btn-' + screen).classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
