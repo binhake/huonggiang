@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>EventBuddy – Prototype (Full)</title>
+    <style>
+        :root {
+            --bg: #fff6fa;
+            --pink: #ffc7dd;
+            --accent: #ff8fb3;
+            --muted: #8b5a66;
+            --card: #fff0f7;
+            --shadow: 0 8px 24px rgba(255, 110, 150, 0.12);
+            --radius: 18px;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #2b2b2b;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 18px 16px 110px;
+            opacity: 0;
+            transform: translateY(6px)
+        }
+        
+        .screen.show {
+            opacity: 1;
+            transform: none;
+            transition: opacity .36s cubic-bezier(.2, .9, .2, 1), transform .36s cubic-bezier(.2, .9, .2, 1)
+        }
+        
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+            overflow: hidden
+        }
+        
+        .header {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #ffd6e6, #ffcce0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #6b2140
+        }
+        
+        h1.main {
+            font-size: 20px;
+            margin: 0 0 6px 0;
+            color: #6b2140
+        }
+        
+        p.sub {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px
+        }
+        
+        .small {
+            font-size: 13px;
+            color: var(--muted)
+        }
+        /* onboarding */
+        
+        .onboard-wrap {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.28);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 60;
+            animation: fadeInModal .26s ease
+        }
+        
+        @keyframes fadeInModal {
+            from {
+                opacity: 0
+            }
+            to {
+                opacity: 1
+            }
+        }
+        
+        .onboard {
+            width: 100%;
+            max-width: 520px;
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+            overflow: hidden
+        }
+        
+        .slides {
+            display: flex;
+            gap: 12px;
+            transition: transform .46s cubic-bezier(.2, .9, .2, 1);
+            will-change: transform
+        }
+        
+        .slide {
+            min-width: 100%
+        }
+        
+        .dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 10px;
+            background: #eee
+        }
+        
+        .dot.active {
+            background: var(--accent)
+        }
+        
+        .onboard h2 {
+            margin: 8px 0 4px 0;
+            color: #5b2440
+        }
+        
+        .onboard p {
+            margin: 0;
+            color: var(--muted)
+        }
+        
+        .onboard .btn {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: none;
+            background: var(--accent);
+            color: white;
+            font-weight: 700;
+            cursor: pointer
+        }
+        
+        .onboard .btn.ghost {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid #ffd6e6
+        }
+        /* bottom nav */
+        
+        .bottomnav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 18px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none
+        }
+        
+        .navwrap {
+            width: 100%;
+            max-width: 420px;
+            background: transparent;
+            padding: 6px 12px;
+            pointer-events: auto
+        }
+        
+        .nav {
+            display: flex;
+            gap: 8px;
+            background: linear-gradient(90deg, #fff, #fff);
+            border-radius: 28px;
+            padding: 8px 8px;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06)
+        }
+        
+        .nav button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 8px;
+            border-radius: 18px;
+            font-size: 13px
+        }
+        
+        .nav button.active {
+            background: linear-gradient(180deg, var(--pink), var(--accent));
+            color: white;
+            box-shadow: 0 6px 12px rgba(255, 120, 150, 0.12)
+        }
+        /* features */
+        
+        .features {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px
+        }
+        
+        .feat {
+            flex: 0 0 46%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03)
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer
+        }
+        /* feed */
+        
+        .event {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03)
+        }
+        
+        .event h3 {
+            margin: 0;
+            font-size: 15px;
+            color: #4a1d33
+        }
+        
+        .chip {
+            background: linear-gradient(180deg, #fff8fb, #fff0f6);
+            padding: 6px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #8b4a5b
+        }
+        /* AI card */
+        
+        .ai-card {
+            background: linear-gradient(180deg, #fff0f7, #fff5f9);
+            padding: 12px;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(255, 100, 150, 0.06)
+        }
+        
+        .ai-bubble {
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+            margin-bottom: 8px;
+            min-height: 46px;
+            display: flex;
+            align-items: center
+        }
+        
+        .ai-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            align-items: center
+        }
+        
+        .ai-controls .ghost {
+            background: #fff;
+            border: 1px solid #ffd1dd;
+            color: var(--accent)
+        }
+        
+        .typing {
+            border-right: 2px solid rgba(80, 20, 40, 0.6);
+            padding-right: 6px
+        }
+        /* map/route */
+        
+        .map {
+            height: 180px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #ffeef6, #fff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted)
+        }
+        
+        .routecard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-top: 10px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03)
+        }
+        /* toast */
+        
+        .toast {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 110px;
+            background: #ffffffaa;
+            border: 1px solid #ffd6e6;
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: #6b2140;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            z-index: 80;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity .3s ease
+        }
+        
+        .toast.show {
+            opacity: 1
+        }
+        
+        footer {
+            height: 88px
+        }
+        
+        @media(min-width:520px) {
+            .screen {
+                padding-top: 40px
+            }
+            .card {
+                margin-bottom: 18px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Onboarding modal -->
+    <div id="onboardWrap" class="onboard-wrap" aria-hidden="false">
+        <div class="onboard">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <strong style="color:#6b2140">Chào mừng bạn đến với EventBuddy</strong>
+                <button id="skipBtn" class="btn ghost">Bỏ qua</button>
+            </div>
+
+            <div style="overflow:hidden;margin-top:12px">
+                <div id="slides" class="slides">
+                    <div class="slide" style="padding:12px 8px">
+                        <div style="display:flex;gap:12px;align-items:center">
+                            <svg width="96" height="96" viewBox="0 0 96 96">
+                                <rect rx="18" width="96" height="96" fill="#ffeaf3" />
+                                <circle cx="48" cy="44" r="18" fill="#ffd0e0" />
+                                <path d="M36 64c6 6 24 6 30 0" stroke="#b24a65" stroke-width="3" fill="none" />
+                            </svg>
+                            <div>
+                                <h2>Người bạn đồng hành của sinh viên</h2>
+                                <p>EventBuddy giúp bạn tìm sự kiện phù hợp, ghép xe an toàn và nhắc lịch thông minh.</p>
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;display:flex;justify-content:flex-end">
+                            <button class="btn" id="next1">Tiếp theo</button>
+                        </div>
+                    </div>
+
+                    <div class="slide" style="padding:12px 8px">
+                        <div style="display:flex;gap:12px;align-items:center">
+                            <svg width="96" height="96" viewBox="0 0 96 96">
+                                <rect rx="18" width="96" height="96" fill="#fff1f8" />
+                                <path d="M28 66l18-32 18 32" stroke="#ff8fb3" stroke-width="4" fill="none" />
+                                <circle cx="48" cy="36" r="6" fill="#ff8fb3" />
+                            </svg>
+                            <div>
+                                <h2>AI gợi ý phù hợp</h2>
+                                <p>AI sẽ phân tích lịch học + sở thích để đề xuất event mà bạn có thể tham gia ngay.</p>
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;display:flex;justify-content:flex-end">
+                            <button class="btn" id="next2">Tiếp theo</button>
+                        </div>
+                    </div>
+
+                    <div class="slide" style="padding:12px 8px">
+                        <div style="display:flex;gap:12px;align-items:center">
+                            <svg width="96" height="96" viewBox="0 0 96 96">
+                                <rect rx="18" width="96" height="96" fill="#fff2f4" />
+                                <path d="M26 60h44v-4a10 10 0 0 0-10-10H36a10 10 0 0 0-10 10z" fill="#ffcbdc" />
+                            </svg>
+                            <div>
+                                <h2>Ghép xe & đi cùng</h2>
+                                <p>Tiết kiệm chi phí, an toàn và vui hơn khi có bạn đồng hành.</p>
+                            </div>
+                        </div>
+                        <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px">
+                            <button class="btn ghost" id="laterBtn">Bắt đầu sau</button>
+                            <button class="btn" id="startBtn">Bắt đầu thôi!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dots" style="margin-top:8px;justify-content:center">
+                <div id="dot0" class="dot active"></div>
+                <div id="dot1" class="dot"></div>
+                <div id="dot2" class="dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">Đã lưu cho sau</div>
+
+    <!-- Screens -->
+    <main id="screen-home" class="screen show">
+        <div class="header">
+            <div>
+                <div class="avatar">B</div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:12px;color:var(--muted)">Xin chào,</div>
+                <div style="font-weight:700;color:#6b2140">Bông ơi 💕</div>
+                <div class="small">Hôm nay có gì hay nha?</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                    <h1 class="main">Chào mừng đến với EventBuddy</h1>
+                    <p class="sub">Người bạn đồng hành giúp bạn không bỏ lỡ sự kiện nào.</p>
+                </div>
+                <svg width="84" height="84" viewBox="0 0 96 96">
+                    <rect rx="18" width="96" height="96" fill="#fff1f6" />
+                    <circle cx="48" cy="40" r="20" fill="#ffd0e6" />
+                    <path d="M36 62c6 6 24 6 30 0" stroke="#b24a65" stroke-width="3" fill="none" />
+                </svg>
+            </div>
+
+            <div style="margin-top:10px;">
+                <div id="aiPreview" class="ai-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <div class="small">Gợi ý hôm nay</div>
+                            <strong style="color:#5b2440">Talkshow: Tương lai tổ chức sự kiện</strong>
+                            <div class="small">Thứ 4 • 19:00 • Cơ sở Mỹ Đình</div>
+                        </div>
+                        <div>
+                            <button class="btn" id="openAiBtn">Xem gợi ý</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:10px" class="features">
+                    <div class="feat">📍
+                        <div style="margin-left:8px"><strong>Bảng tin</strong>
+                            <div class="small">Sự kiện mới</div>
+                        </div>
+                    </div>
+                    <div class="feat">🔔
+                        <div style="margin-left:8px"><strong>Nhắc lịch</strong>
+                            <div class="small">Không lo quên</div>
+                        </div>
+                    </div>
+                    <div class="feat">🚗
+                        <div style="margin-left:8px"><strong>Ghép xe</strong>
+                            <div class="small">An toàn</div>
+                        </div>
+                    </div>
+                    <div class="feat">🤖
+                        <div style="margin-left:8px"><strong>Gợi ý AI</strong>
+                            <div class="small">Event phù hợp</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <main id="screen-feed" class="screen hidden">
+        <div class="header">
+            <div>
+                <h1 class="main">Bảng tin</h1>
+                <p class="sub">Các sự kiện đang mở và phù hợp với bạn</p>
+            </div>
+            <div class="avatar">EB</div>
+        </div>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <input placeholder="Tìm kiếm sự kiện, địa điểm..." style="flex:1;padding:10px;border-radius:12px;border:1px solid #ffdfe8;background:white;margin-right:8px" />
+                <button class="btn">Tìm</button>
+            </div>
+
+            <div class="event">
+                <div>
+                    <h3>Ngày hội tình nguyện ĐHQGHN</h3>
+                    <p class="small">Thứ 7, 09:00 - 16:00 · Cơ sở Mỹ Đình</p>
+                    <div style="margin-top:8px"><span class="chip">Miễn phí</span>
+                    </div>
+                </div>
+                <div style="text-align:right">
+                    <button class="btn" onclick="alert('Đăng ký (demo)')">Đăng ký</button>
+                </div>
+            </div>
+
+            <div style="margin-top:10px">
+                <div class="small" style="margin-bottom:8px">Bộ lọc nhanh</div>
+                <div style="display:flex;gap:8px">
+                    <div style="padding:8px;border-radius:12px;background:white">Theo ngành</div>
+                    <div style="padding:8px;border-radius:12px;background:white">Gần tôi</div>
+                    <div style="padding:8px;border-radius:12px;background:white">Miễn phí</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <main id="screen-ai" class="screen hidden">
+        <div class="header">
+            <div>
+                <h1 class="main">Gợi ý cho bạn</h1>
+                <p class="sub">AI đã phân tích lịch của bạn và chọn ra những event phù hợp</p>
+            </div>
+            <div class="avatar">🤖</div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <div class="small">Bạn rảnh: 18:00 - 21:00 (Hôm nay)</div>
+                    <h3 style="margin:6px 0">Talkshow Future of Event Tech</h3>
+                    <div class="small">Cách 1.2 km · Thứ 4, 19:00</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="margin-bottom:10px">
+                        <button class="btn" onclick="alert('Thêm vào lịch (demo)')">Tham gia</button>
+                    </div>
+                    <div style="font-size:12px;color:var(--muted)">Ưu tiên: 92%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="small" style="margin-bottom:6px">Lời khuyên từ EventBuddy AI</div>
+            <div id="aiBubble" class="ai-bubble typing">...</div>
+            <div class="ai-controls">
+                <button id="prevAi" class="btn ghost">‹</button>
+                <button id="saveLaterBtn" class="btn ghost">Lưu cho sau</button>
+                <button id="dismissBtn" class="btn ghost">Không quan tâm</button>
+                <button id="nextAi" class="btn">Gợi ý sau</button>
+            </div>
+        </div>
+    </main>
+
+    <main id="screen-route" class="screen hidden">
+        <div class="header">
+            <div>
+                <h1 class="main">Lập lộ trình</h1>
+                <p class="sub">Gợi ý tuyến và nhóm ghép xe từ Hòa Lạc</p>
+            </div>
+            <div class="avatar">🚗</div>
+        </div>
+        <div class="card">
+            <div class="map">Bản đồ minh họa (demo)</div>
+            <div class="routecard">
+                <div>
+                    <div style="font-weight:700">Tuyến đề xuất</div>
+                    <div class="small">KTX Hòa Lạc → Mỹ Đình (Bus + ghép xe)</div>
+                </div>
+                <div style="text-align:right">
+                    <div class="small">ETA: 45 phút</div>
+                    <button class="btn" onclick="alert('Ghép xe (demo)')">Ghép xe</button>
+                </div>
+            </div>
+            <div style="margin-top:12px" class="card">
+                <div style="font-weight:700;margin-bottom:6px">Những người cùng đi</div>
+                <div style="display:flex;gap:8px">
+                    <div style="background:#fff;padding:8px;border-radius:12px">Lan (K16) · 2 ghế</div>
+                    <div style="background:#fff;padding:8px;border-radius:12px">Minh (K17) · 1 ghế</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- bottom nav -->
+    <div class="bottomnav">
+        <div class="navwrap">
+            <div class="nav" role="navigation" aria-label="Main">
+                <button id="btn-home" class="active">Trang chủ</button>
+                <button id="btn-feed">Bảng tin</button>
+                <button id="btn-ai">Gợi ý AI</button>
+                <button id="btn-route">Lộ trình</button>
+            </div>
+        </div>
+    </div>
+
+    <footer></footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // safe element refs
+            const slidesEl = document.getElementById('slides');
+            const dots = [document.getElementById('dot0'), document.getElementById('dot1'), document.getElementById('dot2')];
+            const onboardWrap = document.getElementById('onboardWrap');
+            const toast = document.getElementById('toast');
+            const aiBubble = document.getElementById('aiBubble');
+            const aiPreview = document.getElementById('aiPreview');
+            const openAiBtn = document.getElementById('openAiBtn');
+
+            // onboarding
+            let slideIndex = 0;
+
+            function updateSlides() {
+                    if (!slidesEl) return;
+                    slidesEl.style.transform = `translateX(-${slideIndex * 100}%)`;
+                    dots.forEach((d, i) => {
+                        if (d) d.classList.toggle('active', i === slideIndex);
+                    });
+                }
+                // controls
+            const next1 = document.getElementById('next1');
+            const next2 = document.getElementById('next2');
+            const laterBtn = document.getElementById('laterBtn');
+            const startBtn = document.getElementById('startBtn');
+            const skipBtn = document.getElementById('skipBtn');
+            if (next1) next1.addEventListener('click', () => {
+                slideIndex = 1;
+                updateSlides();
+            });
+            if (next2) next2.addEventListener('click', () => {
+                slideIndex = 2;
+                updateSlides();
+            });
+            if (laterBtn) laterBtn.addEventListener('click', () => {
+                if (onboardWrap) onboardWrap.style.display = 'none';
+            });
+            if (skipBtn) skipBtn.addEventListener('click', () => {
+                if (onboardWrap) onboardWrap.style.display = 'none';
+            });
+            if (startBtn) startBtn.addEventListener('click', () => {
+                if (onboardWrap) onboardWrap.style.display = 'none';
+                try {
+                    localStorage.setItem('eventbuddy_onboard_seen', '1');
+                } catch (e) {}
+            });
+
+            try {
+                if (localStorage.getItem('eventbuddy_onboard_seen') === '1' && onboardWrap) onboardWrap.style.display = 'none';
+            } catch (e) {}
+
+            updateSlides();
+
+            // navigation (screens)
+            function hideAll() {
+                ['home', 'feed', 'ai', 'route'].forEach(s => {
+                    const el = document.getElementById('screen-' + s);
+                    if (el) {
+                        el.classList.add('hidden');
+                        el.classList.remove('show');
+                    }
+                    const btn = document.getElementById('btn-' + s);
+                    if (btn) btn.classList.remove('active');
+                });
+            }
+
+            function show(screen) {
+                    hideAll();
+                    const el = document.getElementById('screen-' + screen);
+                    if (!el) return;
+                    el.classList.remove('hidden');
+                    void el.offsetWidth; // reflow
+                    el.classList.add('show');
+                    const btn = document.getElementById('btn-' + screen);
+                    if (btn) btn.classList.add('active');
+                }
+                ['home', 'feed', 'ai', 'route'].forEach(s => {
+                    const btn = document.getElementById('btn-' + s);
+                    if (btn) btn.addEventListener('click', () => show(s));
+                });
+
+            // AI typing + controls
+            const aiLines = [
+                "Hehe, mình thấy bạn rảnh tối nay 18:00–21:00 nè! Có một Talkshow hay về Event Tech gần bạn, muốn tham gia không? 💡",
+                "Gợi ý nè: Workshop kỹ năng tổ chức phù hợp với lịch học của bạn — có chứng nhận và free snack nữa nha 🍪",
+                "Nếu bạn muốn tiết kiệm, mình gợi ý ghép xe từ KTX Hòa Lạc lúc 16:30 — có 3 bạn đi rồi đó, rủ thêm nhé! 🚗💨",
+                "Mẹo nhỏ: tham gia 2 sự kiện cùng chủ đề trong 1 tháng sẽ giúp bạn nhận badge 'Event Pro' đó! ✨",
+                "Nhắc bạn: thời tiết hôm nay có thể mưa nhẹ, mang áo mưa và đến sớm 10 phút để check-in dễ hơn ☔"
+            ];
+            let aiIndex = 0;
+
+            function typeText(text, el, speed = 18) {
+                if (!el) return;
+                el.classList.add('typing');
+                el.textContent = '';
+                let i = 0;
+                clearInterval(el._typingTimer);
+                el._typingTimer = setInterval(() => {
+                    if (i >= text.length) {
+                        clearInterval(el._typingTimer);
+                        el.classList.remove('typing');
+                        return;
+                    }
+                    el.textContent += text.charAt(i++);
+                }, speed);
+            }
+
+            function showAi(idx) {
+                aiIndex = (idx + aiLines.length) % aiLines.length;
+                if (!aiBubble) return;
+                aiBubble.style.opacity = 0;
+                setTimeout(() => {
+                    aiBubble.style.transition = 'opacity .26s ease';
+                    aiBubble.style.opacity = 1;
+                }, 60);
+                typeText(aiLines[aiIndex], aiBubble, 18);
+            }
+
+            const prevAiBtn = document.getElementById('prevAi');
+            const nextAiBtn = document.getElementById('nextAi');
+            const saveLaterBtn = document.getElementById('saveLaterBtn');
+            const dismissBtn = document.getElementById('dismissBtn');
+
+            if (prevAiBtn) prevAiBtn.addEventListener('click', () => showAi(aiIndex - 1));
+            if (nextAiBtn) nextAiBtn.addEventListener('click', () => showAi(aiIndex + 1));
+            if (saveLaterBtn) saveLaterBtn.addEventListener('click', () => {
+                try {
+                    localStorage.setItem('eventbuddy_ai_pref', 'saved');
+                } catch (e) {};
+                showToast('Đã lưu gợi ý — xem lại trong mục "Đã lưu"');
+            });
+            if (dismissBtn) dismissBtn.addEventListener('click', () => {
+                try {
+                    localStorage.setItem('eventbuddy_ai_pref', 'dismissed');
+                } catch (e) {};
+                if (aiPreview) aiPreview.style.display = 'none';
+                showToast('Đã tắt gợi ý AI — bật lại trong Cài đặt');
+            });
+            if (openAiBtn) openAiBtn.addEventListener('click', () => show('ai'));
+
+            function showToast(text = 'Đã lưu') {
+                if (!toast) return;
+                toast.textContent = text;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 2400);
+            }
+
+            // If AI dismissed earlier, hide preview
+            try {
+                if (localStorage.getItem('eventbuddy_ai_pref') === 'dismissed' && aiPreview) aiPreview.style.display = 'none';
+            } catch (e) {}
+
+            // initialize
+            showAi(0);
+
+            // global error fallback
+            window.addEventListener('error', function(e) {
+                console.warn('Runtime error (ignored):', e && e.message);
+                showToast('Có lỗi nhỏ, đã khôi phục giao diện.');
+            });
+
+        }); // DOMContentLoaded
+    </script>
+</body>
+
+</html>
